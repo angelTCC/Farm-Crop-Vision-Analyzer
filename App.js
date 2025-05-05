@@ -1,20 +1,29 @@
-import { StatusBar } from 'expo-status-bar';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+
+// Importing the components
+import Home from './components/Home';
+import DetailReport from './components/DetailReport';
+import AddReport from './components/AddReport';
+import Reports from './components/Reports';
+
+const Tab = createBottomTabNavigator();
 
 export default function App() {
+  const [ isLoggedIn, setIsLoggedIn ] = useState(false)
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+  <NavigationContainer>
+    {!isLoggedIn ? (
+      <Home logged={isLoggedIn} setLogged={setIsLoggedIn} />
+    ) : (
+      <Tab.Navigator>
+        <Tab.Screen name="AddReport" component={AddReport} />
+        <Tab.Screen name="Reports" component={Reports} />
+      </Tab.Navigator>
+    )}
+  </NavigationContainer>
+);
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
