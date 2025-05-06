@@ -1,13 +1,24 @@
 import { StyleSheet } from "react-native";
 
 export const Styles = StyleSheet.create({
+
+  // Reports styles
+  itemText: {
+    fontSize: 20,
+    },
+  innerContainer: {
+    paddingHorizontal: 40,
+    paddingVertical: 20,
+  },
+
+
+
+
+
+
     containerPress: {
       flex: 0.95,},
-    innerContainer: {
-      paddingHorizontal: 40,
-      paddingVertical: 20,
-      backgroundColor: '#333333',
-    },
+
     sectionHeader: {
       backgroundColor: '#fbdabb',
       color: '#333333',
@@ -15,10 +26,7 @@ export const Styles = StyleSheet.create({
       flexWrap: 'wrap',
       textAlign: 'center',
     },
-    itemText: {
-      color: '#F4CE14',
-      fontSize: 32,
-    },
+
     separator: {
       borderBottomWidth: 1,
       borderColor: '#EDEFEE',
