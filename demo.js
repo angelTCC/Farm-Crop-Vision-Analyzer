@@ -14,6 +14,7 @@ import {
   Alert
 } from 'react-native';
 import * as Location from 'expo-location';
+import  { AddReportStyles as styles } from './StyleAddReport';
 
 export default function AddReport() {
   const [formData, setFormData] = useState({
@@ -171,86 +172,3 @@ export default function AddReport() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: 20,
-  },
-  formContainer: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 4,
-    marginTop: 12,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    borderRadius: 5,
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
-    marginBottom: 8,
-  },
-  buttonBlue: {
-    backgroundColor: '#007bff',
-    padding: 10,
-    borderRadius: 5,
-    marginVertical: 10,
-  },
-  buttonGreen: {
-    backgroundColor: '#28a745',
-    padding: 12,
-    borderRadius: 5,
-    marginTop: 20,
-  },
-  buttonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  fieldContainer: {
-    marginBottom: 20,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    width: '80%',
-    padding: 20,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  modalSubtitle: {
-    fontSize: 16,
-    marginTop: 10,
-  },
-  modalItem: {
-    padding: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 5,
-    marginVertical: 5,
-  },
-  modalItemText: {
-    fontSize: 16,
-  },
-  errorText: {
-    color: 'red',
-    marginTop: 5,
-  },
-});

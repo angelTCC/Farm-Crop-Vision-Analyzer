@@ -6,7 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 // Importing the components
 import Home from './components/Home';
 import DetailReport from './components/DetailReport';
-import AddReport from './components/AddReport';
+import AddReport from './components/AddReportScreen/AddReport';
 import Reports from './components/Reports';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Menu from './components/Menu';

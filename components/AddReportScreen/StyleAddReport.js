@@ -1,11 +1,26 @@
 
 import { StyleSheet } from 'react-native';
 export const AddReportStyles = StyleSheet.create({
+    input: {
+      borderWidth: 1,
+      borderColor: '#ddd',
+      borderRadius: 8,
+      padding: 12,
+      margin: 10,
+      fontSize: 16,
+      backgroundColor: '#fff'
+    },
     container: {
       flex: 1,
       padding: 20,
       backgroundColor: '#fff'
     },
+
+
+
+
+
+
     scrollContent: {
       paddingBottom: 40
     },
@@ -18,14 +33,7 @@ export const AddReportStyles = StyleSheet.create({
       fontWeight: '500',
       color: '#333'
     },
-    input: {
-      borderWidth: 1,
-      borderColor: '#ddd',
-      borderRadius: 8,
-      padding: 12,
-      fontSize: 16,
-      backgroundColor: '#fff'
-    },
+
     inputRow: {
       flexDirection: 'row',
       alignItems: 'center'
@@ -78,6 +86,19 @@ export const AddReportStyles = StyleSheet.create({
       backgroundColor: '#fff',
       borderRadius: 8,
       padding: 10
+    },
+
+    modalView: {
+      margin: 20,
+      backgroundColor: 'white',
+      borderRadius: 20,
+      padding: 35,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
     },
     modalOptionText: {
       fontSize: 16,

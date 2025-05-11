@@ -1,109 +1,107 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 
 export default function Dashboard() {
-    // Example data
-    const totalRevenue = 15000;
-    const averageSales = 1250;
-    const maxRevenue = 5000;
-    const minRevenue = 800;
-    const growth = 10;
+  return (
+    <ScrollView style={styles.container}>
+      {/* Título principal */}
+      <Text style={styles.title}>📊 Dashboard Agrícola</Text>
 
-    // Example KPIs
-    const salesPerEmployee = 500;
-    const averageOrderValue = 200;
-    const conversionRate = 3.5; // percentage
-    const customerAcquisitionCost = 50;
+      {/* Comentario visible para explicar propósito general del dashboard */}
+      <Text style={styles.comment}>Este panel proporciona una visión general de datos agrícolas para apoyar decisiones de campo.</Text>
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Dashboard</Text>
+      {/* === Clima Actual === */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>🌦 Clima Actual</Text>
+        <Text style={styles.comment}>Muestra las condiciones climáticas actuales en la zona de cultivo.</Text>
+        <Text style={styles.cardText}>Ubicación: [Nombre de la zona]</Text>
+        <Text style={styles.cardText}>Temperatura: [XX°C]</Text>
+        <Text style={styles.cardText}>Humedad: [XX%]</Text>
+        <Text style={styles.cardText}>Estado del cielo: [Soleado/Nublado]</Text>
+      </View>
 
-            <View style={styles.statsContainer}>
-                <Text style={styles.stat}>Total Revenue: ${totalRevenue}</Text>
-                <Text style={styles.stat}>Average Monthly Sales: ${averageSales}</Text>
-                <Text style={styles.stat}>Maximum Revenue: ${maxRevenue}</Text>
-                <Text style={styles.stat}>Minimum Revenue: ${minRevenue}</Text>
-                <Text style={styles.stat}>Growth: +{growth}% from last month</Text>
-            </View>
+      {/* === Estadísticas del Cultivo === */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>📈 Estadísticas del Cultivo</Text>
+        <Text style={styles.comment}>Resumen de los reportes ingresados por el usuario: plagas, etapas del cultivo, tipo.</Text>
+        <Text style={styles.cardText}>Número total de reportes: [X]</Text>
+        <Text style={styles.cardText}>Tipo de cultivo más reportado: [Nombre]</Text>
+        <Text style={styles.cardText}>Etapa más común: [Etapa]</Text>
+        <Text style={styles.cardText}>Tipo de plaga más frecuente: [Nombre]</Text>
+      </View>
 
-            <View style={styles.kpisContainer}>
-                <Text style={styles.kpiTitle}>Key Performance Indicators (KPIs)</Text>
-                <Text style={styles.kpi}>Sales per Employee: ${salesPerEmployee}</Text>
-                <Text style={styles.kpi}>Average Order Value: ${averageOrderValue}</Text>
-                <Text style={styles.kpi}>Conversion Rate: {conversionRate}%</Text>
-                <Text style={styles.kpi}>Customer Acquisition Cost: ${customerAcquisitionCost}</Text>
-            </View>
+      {/* === Recomendaciones IA (imagen) === */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>🤖 Recomendaciones IA (imagen)</Text>
+        <Text style={styles.comment}>Procesa imágenes subidas por el usuario para detectar plagas con inteligencia artificial.</Text>
+        <Text style={styles.cardText}>Resultado del análisis de imagen:</Text>
+        <Text style={styles.cardText}>- Posible plaga: [Nombre]</Text>
+        <Text style={styles.cardText}>- Severidad: [Baja/Media/Alta]</Text>
+        <Text style={styles.cardText}>- Recomendación: [Texto de IA]</Text>
+      </View>
 
-            <View style={styles.chartDescriptionContainer}>
-                <Text style={styles.chartTitle}>Chart Descriptions</Text>
-                <Text style={styles.chartDescription}>1. Line Chart (Trends over Time): This would show how sales or revenue change over time (e.g., monthly sales for the year).</Text>
-                <Text style={styles.chartDescription}>2. Bar Chart (Comparison between Categories): This would compare sales or performance across different products or categories (e.g., product-wise sales).</Text>
-            </View>
+      {/* === Recomendaciones IA (descripción) === */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>📝 Recomendaciones IA (descripción)</Text>
+        <Text style={styles.comment}>Usa texto ingresado por el usuario para diagnosticar problemas y recomendar acciones.</Text>
+        <Text style={styles.cardText}>Descripción: "[Texto del usuario]"</Text>
+        <Text style={styles.cardText}>Diagnóstico: [Nombre]</Text>
+        <Text style={styles.cardText}>Recomendación: [Texto de IA]</Text>
+      </View>
 
-            <View style={styles.insightsContainer}>
-                <Text style={styles.insightTitle}>Insights:</Text>
-                <Text style={styles.insight}>- Sales have been steadily growing. Consider increasing marketing budget for higher-performing products.</Text>
-                <Text style={styles.insight}>- Product B is underperforming; investigate further to identify causes.</Text>
-                <Text style={styles.insight}>- The average order value is slightly lower than expected, consider cross-selling or upselling to boost it.</Text>
-            </View>
-        </View>
-    );
+      {/* === Predicciones Futuras === */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>📅 Predicciones Futuras</Text>
+        <Text style={styles.comment}>Provee estimaciones basadas en modelos predictivos: clima, plagas y rendimiento.</Text>
+        <Text style={styles.cardText}>Clima estimado: [Resumen]</Text>
+        <Text style={styles.cardText}>Riesgo de plaga: [Bajo/Medio/Alto]</Text>
+        <Text style={styles.cardText}>Rendimiento estimado: [Kg/hectárea]</Text>
+      </View>
+
+      {/* === Información Útil === */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>ℹ️ Información Útil</Text>
+        <Text style={styles.comment}>Contenido educativo y alertas agrícolas para mejorar el manejo del campo.</Text>
+        <Text style={styles.cardText}>- Calendario de siembra</Text>
+        <Text style={styles.cardText}>- Alertas fitosanitarias</Text>
+        <Text style={styles.cardText}>- Consejos según zona</Text>
+      </View>
+    </ScrollView>
+  );
 }
 
+// Estilos visuales
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: '#f5f5f5',
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 20,
-    },
-    statsContainer: {
-        marginBottom: 30,
-    },
-    stat: {
-        fontSize: 18,
-        marginBottom: 5,
-    },
-    kpisContainer: {
-        marginBottom: 30,
-    },
-    kpiTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    kpi: {
-        fontSize: 18,
-        marginBottom: 5,
-    },
-    chartDescriptionContainer: {
-        marginBottom: 30,
-    },
-    chartTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    chartDescription: {
-        fontSize: 16,
-        marginBottom: 5,
-    },
-    insightsContainer: {
-        marginBottom: 30,
-    },
-    insightTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    insight: {
-        fontSize: 16,
-        marginBottom: 5,
-    },
+  container: {
+    padding: 20,
+    backgroundColor: '#f8f8f8',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  comment: {
+    fontSize: 13,
+    fontStyle: 'italic',
+    color: '#666',
+    marginBottom: 5,
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 15,
+    elevation: 3,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  cardText: {
+    fontSize: 14,
+    marginBottom: 4,
+  },
 });
