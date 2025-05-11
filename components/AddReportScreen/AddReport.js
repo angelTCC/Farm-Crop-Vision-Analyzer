@@ -56,7 +56,12 @@ export default function AddReport() {
         </Pressable>
 
         <Modal visible={isModalVisible} animationType="slide" transparent={true}>
-          <View style={{flex: 0.5,justifyContent: 'center', alignItems: 'center', backgroundColor:'green'}}>
+          <View style={{
+            flex: 1,
+            justifyContent: 'center', 
+            alignItems: 'center',       
+            backgroundColor: 'rgba(0,0,0,0.5)'
+            }}>
               <View style={{
                           margin: 20,
                           width:'80%',
