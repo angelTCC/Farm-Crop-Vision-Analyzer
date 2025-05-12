@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, ScrollView, Pressable, Modal} from 'react-native';
+import { View, Text, TextInput, ScrollView, Pressable, Modal, FlatList} from 'react-native';
 import { AddReportStyles as styles } from './StyleAddReport'; 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -8,21 +8,43 @@ import Entypo from '@expo/vector-icons/Entypo';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
 export default function AddReport() {
-  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [dataModal, setDataModal] = useState([]);
+  const [modalTitle, setModalTitle] = useState('');
+  const crops = [{name: 'Corn', id:'1d'}, {name:'Soybean', id:'2'}, {name:'Rice', id:'3'}];
+  const fertilizers = [{name:'Urea', id:'a'}, {name:'Compost', id:'b'}, {name:'NPK', id:'c'}];
+  const soils = [ {name:'Sandy', id:'s1'},{ name:'Clay', id: 's2'}, { name: 'Silty', id: 's3' }];
 
-
-  const toggleModal = () => {
+  const toggleModal = (data, title) => {
+    setDataModal(data);
+    setModalTitle(title);
     setIsModalVisible(!isModalVisible);
+
   };
+  const Item = ({name}) => {
+    return (
+      <View>
+        <Pressable style={{borderColor: '#ccc', borderWidth:2, margin:2, borderRadius: 10, 
+                           alignItems:'center', padding:5
+        }}>
+          <Text>{name}</Text>
+        </Pressable>
+      </View>
+    );
+  };
+  const renderItem = ({item}) => <Item name={item.name} />;
 
   return (
     <ScrollView style={styles.container}>
 
-      <Text>Farm name</Text>
-      <TextInput 
-        style={styles.input}
-        placeholder='Farm Name'
-      />
+      {/* Farm name */}
+      <View>
+        <Text>Farm name</Text>
+        <TextInput 
+          style={styles.input}
+          placeholder='Farm Name'
+        />
+      </View>
       
       {/*Whetter and localization */}
       <View>
@@ -49,47 +71,23 @@ export default function AddReport() {
         </View>
       </View>
 
+      {/* Crop type */}
       <View>
-        <Text>Crop type</Text>
-        <Pressable onPress={toggleModal} style={{backgroundColor: 'green', padding: 10}}>
-          <Text>Select crop</Text>
-        </Pressable>
-
-        <Modal visible={isModalVisible} animationType="slide" transparent={true}>
-          <View style={{
-            flex: 1,
-            justifyContent: 'center', 
-            alignItems: 'center',       
-            backgroundColor: 'rgba(0,0,0,0.5)'
-            }}>
-              <View style={{
-                          margin: 20,
-                          width:'80%',
-                          backgroundColor: 'white',
-                          padding: 35,
-                          alignSelf:'center'}}>
-                <Text>ola</Text>
-                <Pressable onPress={toggleModal} style={{marginTop: 20}}>
-                  <Text style={{color: 'red'}}>Close</Text>
-                </Pressable>
-              </View>
-          </View>
-        </Modal>
+        <Text>Select conditions</Text>
+        <View style={{flexDirection:'row'}}>
+          <Pressable onPress={()=>toggleModal(crops, 'Crops')} style={[styles.input, {backgroundColor:'#ddd', flex:1}]}>
+            <Text>Crop</Text>
+          </Pressable>      
+        {/* Fertilizer types */}
+          <Pressable onPress={()=>toggleModal(fertilizers, 'Fertilizers')} style={[styles.input, {backgroundColor:'#ddd', flex:1}]}>
+            <Text>Fertizer</Text>
+          </Pressable>
+        {/* Soil type */}
+          <Pressable onPress={()=>toggleModal(soils, 'Soils')} style={[styles.input, {backgroundColor:'#ddd', flex:1}]}>
+            <Text>Soil</Text>
+          </Pressable>
+        </View>
       </View>
-
-      
-
-      <Text>Fertilizer</Text>
-      <TextInput
-        style={styles.input}
-        placeholder='Fertilizer'
-      />
-
-      <Text>Soil type</Text>
-      <TextInput 
-        style={styles.input}
-        placeholder='Soil type'
-      />
 
       {/* Load or Take Photo */}
       <View>
@@ -111,6 +109,39 @@ export default function AddReport() {
         </Pressable>
         </View>
       </View>
+
+      <View>
+        <Text>Observations</Text>
+        <TextInput style={[styles.input, {height:100}]} numberOfLines={4} maxLength={50}/>
+      </View>
+
+      <Modal visible={isModalVisible} animationType="slide" transparent={true}>
+          <View style={{
+            flex: 1,
+            justifyContent: 'center', 
+            alignItems: 'center',       
+            backgroundColor: 'rgba(0,0,0,0.5)'
+            }}>
+              <View style={{
+                          width:'80%',
+                          borderRadius: 20,
+                          backgroundColor: 'white',
+                          padding: 15,
+                          alignItems:'center'}}>
+                <Text>Select Option</Text>
+                <FlatList 
+                  data={dataModal}
+                  keyExtractor={item => item.id}
+                  renderItem = {renderItem}>
+                </FlatList>
+                
+                <Pressable onPress={toggleModal} style={{marginTop:20, padding:5, backgroundColor: 'red', borderRadius:20}}>
+                  <Text style={{color: 'white' }}>Close</Text>
+                </Pressable>
+              </View>
+          </View>
+      </Modal>
+      
 
     </ScrollView>
   );
