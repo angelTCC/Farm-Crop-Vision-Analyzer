@@ -22,7 +22,7 @@ export default function App() {
       <Home logged={isLoggedIn} setLogged={setIsLoggedIn} />
     ) : (
       <Tab.Navigator>
-
+        {/*
         <Tab.Screen 
                 options={{
                   tabBarIcon: ({color, size}) => (
@@ -39,6 +39,7 @@ export default function App() {
                 }}
                 name="Dashboard" 
                 component={Dashboard} />
+        */}
 
         <Tab.Screen   
                 options={{

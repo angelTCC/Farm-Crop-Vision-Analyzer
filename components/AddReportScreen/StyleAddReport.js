@@ -29,9 +29,9 @@ export const AddReportStyles = StyleSheet.create({
     imageButton:{
       flex:1, alignItems:'center', justifyContent:'center', 
       borderColor: '#ccc', borderStyle: 'dashed',borderRadius:8, 
-      borderWidth:2, padding:10, margin:10, marginLeft:30,
-      height:120},
-
+      borderWidth:2, padding:10, margin:10,
+      height:120
+    },
     pressButton: {
         borderWidth: 1,
         borderColor: '#ddd',

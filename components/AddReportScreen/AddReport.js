@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, ScrollView, Pressable, Modal, FlatList, Alert, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, BackHandler} from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Image, Text, TextInput, ScrollView, Pressable, Modal, FlatList, Alert, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, BackHandler} from 'react-native';
 import { AddReportStyles as styles } from './StyleAddReport'; 
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -7,7 +7,7 @@ import Entypo from '@expo/vector-icons/Entypo';
 
 import * as Location from 'expo-location';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-
+import * as MediaLibrary from 'expo-media-library';
 
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 
@@ -24,16 +24,24 @@ export default function AddReport() {
   const [crop, setCrop] = useState('crop');
   const [fertilizer,setFertilizer] = useState('fertilizer');
   const [soil, setSoil] = useState('soil');
-  const [photo, setPhoto] = useState('');
   const [observation, setObservation] = useState('');
   const [callback, setSelectCallback] = useState(null);
   const YOUR_API_KEY = '';
-  const [errorMsg, setErrorMsg] = useState(null);
   const [loadLocation, setLoadLocation] = useState(null);
+
+  
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  {/** photo */}
+  const [photo, setPhoto] = useState('');
   const [facing, setFacing] = useState('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false)
-
+  const cameraRef = useRef(null);
+  const [photoUri, setPhotoUri] = useState(null);
+  const [showPhotoPreview , setShowPhotoPreview] = useState(false);
+  const [savedPhotoUri, setSavedPhotoUri] = useState(null);
+  const [showPhotoSaved , setShowPhotoSaved] = useState(false);
 
   const toggleModal = (data, title, setStateCallback) => {
     setDataModal(data);
@@ -87,10 +95,27 @@ export default function AddReport() {
   function toggleCameraFacing() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   }
-  function takePhoto() {
-    setShowCamera(true);
-  }
-
+  const takePicture = async () => {
+    if (cameraRef.current) {
+      const photo = await cameraRef.current.takePictureAsync({ base64: true });
+      setPhotoUri(photo.uri);
+      setShowCamera(false);
+      setShowPhotoPreview(true);
+    }
+  };
+  const savePhoto = async () => {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status === 'granted') {
+      await MediaLibrary.saveToLibraryAsync(photoUri);
+      setSavedPhotoUri(photoUri); 
+      Alert.alert('Foto guardada en galería');
+      setPhotoUri(null);
+      setShowPhotoPreview(false);
+      setShowPhotoSaved(true)
+    } else {
+      Alert.alert('Permiso denegado para guardar imagen');
+    }
+  };
   useEffect(() => {
     if (!permission || !permission.granted) {
       requestPermission();
@@ -171,31 +196,35 @@ export default function AddReport() {
           </View>
         </View>
 
-        {/* Load or Take Photo */}
+        {/* Take Photo */}
         <View>
           <Text>Image</Text>
-
-          {/* take photo */}
-          <View style={{flexDirection:'row', alignItems:'center', justifyContent:'center'}}>
-          <Pressable style={({pressed})=>[
-                      styles.imageButton, pressed && {backgroundColor:'rgb(151, 158, 165)'}
-                    ]} onPress={takePhoto}>
-            <Entypo name="camera" size={40} color="black" />
-            <Text>Take Photo</Text>
-          </Pressable>
-
-          {/* load photo 
-          <Pressable style={({pressed})=>[
-            styles.imageButton, pressed && {backgroundColor:'rgb(151, 158, 165)'}
-          ]}>
-            <FontAwesome name="photo" size={40} color="black" />
-            <Text>Upload Image</Text>
-          </Pressable>
-          */}
-          </View>
+          {showPhotoSaved ? (
+              <View style={{alignItems:'center'}}>
+                <Image
+                  source={{ uri: savedPhotoUri }}
+                  style={{ width: 200, height: 300, borderRadius:10 ,marginBottom: 10 }}
+                />
+                <Pressable style={({pressed})=>[styles.button, pressed && [styles.pressButton]]}
+                            onPress={()=> {
+                              setShowPhotoSaved(false);
+                              setPhotoUri(null)
+                            }}>
+                  <Text>Delete</Text>
+                </Pressable>
+              </View>
+          ) : 
+          (
+            <View style={{alignItems:'center', justifyContent:'center', alignContent:'center'}}>
+              <Pressable style={({pressed})=>[
+                          styles.imageButton, {width:'80%'}, pressed && {backgroundColor:'rgb(151, 158, 165)'}
+                        ]} onPress={() => setShowCamera(true)}>
+                <Entypo name="camera" size={40} color="black" />
+                <Text>Take Photo</Text>
+              </Pressable>
+            </View>
+          )}
         </View>
-
-
 
         {/* Observations */}
         <View>
@@ -242,14 +271,12 @@ export default function AddReport() {
         {showCamera && (
           <Modal visible={showCamera} animationType="slide">
             <View style={stylesCamera.container}>
-              <CameraView style={stylesCamera.camera} facing={facing}>
+              <CameraView style={stylesCamera.camera} facing={facing} ref={cameraRef}>
                 <View style={stylesCamera.buttonContainer}>
                   <TouchableOpacity style={stylesCamera.button} onPress={toggleCameraFacing}>
                     <Text style={stylesCamera.text}>Flip</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={stylesCamera.button} onPress={() => (
-                    Alert.alert('Photo taked')
-                  )}>
+                  <TouchableOpacity style={stylesCamera.button} onPress={takePicture}>
                     <Text style={stylesCamera.text}>Take</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={stylesCamera.button} onPress={() => setShowCamera(false)}>
@@ -258,11 +285,30 @@ export default function AddReport() {
                 </View>
               </CameraView>
             </View>
+        
           </Modal>
         )}
 
-
-
+        { showPhotoPreview && photoUri && (
+          <Modal visible={showPhotoPreview}>
+              <View style={{ flex: 1 }}>
+                <Image
+                  source={{ uri: photoUri }}
+                  style={{ width: '100%', height: '100%' }}
+                  resizeMode="cover"
+                />
+                <View style={{ flexDirection:'row', position: 'absolute', bottom: 50, width: '100%', alignItems: 'center' }}>
+                  <TouchableOpacity onPress={savePhoto} style={{ flex:1, alignItems:'center'}}>
+                    <Text style={{ color: 'white', fontSize: 18 }}>Guardar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={{flex:1, alignItems:'center'}} onPress={() => setPhotoUri(null)}>
+                    <Text style={{ color: 'white', fontSize: 18 }}>Cancelar</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+          </Modal>
+        )}
+        
       </ScrollView>
     </KeyboardAvoidingView>
   );
