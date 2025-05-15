@@ -18,17 +18,16 @@ export default function AddReport() {
   const crops = [{name: 'Corn', id:'1d'}, {name:'Soybean', id:'2'}, {name:'Rice', id:'3'}];
   const fertilizers = [{name:'Urea', id:'a'}, {name:'Compost', id:'b'}, {name:'NPK', id:'c'}];
   const soils = [ {name:'Sandy', id:'s1'},{ name:'Clay', id: 's2'}, { name: 'Silty', id: 's3' }];
+
   const [farmName, setFarmName] = useState('');
   const [location, setLocation] = useState(null);
-  const [gps, setGps] = useState(null)
   const [crop, setCrop] = useState('crop');
   const [fertilizer,setFertilizer] = useState('fertilizer');
   const [soil, setSoil] = useState('soil');
   const [observation, setObservation] = useState('');
   const [callback, setSelectCallback] = useState(null);
-  const YOUR_API_KEY = '';
+  const YOUR_API_KEY = '6c0f59ca02b01f3e25302ad35a5f305c';
   const [loadLocation, setLoadLocation] = useState(null);
-
   
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -42,6 +41,16 @@ export default function AddReport() {
   const [showPhotoPreview , setShowPhotoPreview] = useState(false);
   const [savedPhotoUri, setSavedPhotoUri] = useState(null);
   const [showPhotoSaved , setShowPhotoSaved] = useState(false);
+
+  const dataToSend = {
+    farmName,
+    location,
+    crop,
+    fertilizer,
+    soil,
+    photo: savedPhotoUri,
+    observation
+  }
 
   const toggleModal = (data, title, setStateCallback) => {
     setDataModal(data);
@@ -308,7 +317,13 @@ export default function AddReport() {
               </View>
           </Modal>
         )}
-        
+
+        <View style={{ padding: 10 }}>
+          <Text selectable style={{ fontFamily: 'monospace' }}>
+            {JSON.stringify(dataToSend, null, 2)}
+          </Text>
+        </View>
+
       </ScrollView>
     </KeyboardAvoidingView>
   );
