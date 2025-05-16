@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Image, Text, TextInput, ScrollView, Pressable, Modal, FlatList, Alert, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, BackHandler} from 'react-native';
 import { AddReportStyles as styles } from './StyleAddReport'; 
-import AntDesign from '@expo/vector-icons/AntDesign';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Entypo from '@expo/vector-icons/Entypo';
+
+import * as SQLite from 'expo-sqlite';
 
 import * as Location from 'expo-location';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
 
-import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
+
 
 export default function AddReport() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -29,10 +29,7 @@ export default function AddReport() {
   const YOUR_API_KEY = '6c0f59ca02b01f3e25302ad35a5f305c';
   const [loadLocation, setLoadLocation] = useState(null);
   
-  const [errorMsg, setErrorMsg] = useState(null);
-
   {/** photo */}
-  const [photo, setPhoto] = useState('');
   const [facing, setFacing] = useState('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false)
@@ -51,6 +48,54 @@ export default function AddReport() {
     photo: savedPhotoUri,
     observation
   }
+
+  const sendData = async () => {
+    try {
+      const db = await SQLite.openDatabaseAsync('reportsDatabase');
+      await db.runAsync(
+        `INSERT INTO reports (farmName, location, crop, fertilizer, soil, photoUri, observation) 
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [farmName, JSON.stringify(location), crop, fertilizer, soil, savedPhotoUri, observation]
+      );
+      Alert.alert('Success', 'Report submitted!');
+          setFarmName('');
+    setLocation('');
+    setCrop('cro');
+    setFertilizer('fertilizer');
+    setSoil('soil');
+    setSavedPhotoUri(null);
+    setObservation('');
+    setShowPhotoSaved(false);
+    } catch(err) {
+      Alert.alert('Error', 'Data don\'t sent')
+    }
+  }
+  
+  useEffect(() => {
+    const initDB = async () => {
+      try {
+
+        const db = await SQLite.openDatabaseAsync('reportsDatabase');
+
+        await db.execAsync(`
+          CREATE TABLE IF NOT EXISTS reports (
+            id INTEGER PRIMARY KEY NOT NULL,
+            farmName TEXT,
+            location TEXT,
+            crop TEXT,
+            fertilizer TEXT,
+            soil TEXT,
+            photoUri TEXT,
+            observation TEXT
+          );
+        `);
+      } catch (err) {
+        Alert.alert('error database');
+      }
+    };
+
+    initDB();
+  }, []);
 
   const toggleModal = (data, title, setStateCallback) => {
     setDataModal(data);
@@ -86,7 +131,7 @@ export default function AddReport() {
     const latitude = gps.coords.latitude;
     const longitude = gps.coords.longitude;
   
-    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${YOUR_API_KEY}&units=metric`)
+    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${YOUR_API_KEY}`)
       .then(res => res.json())
       .then(data => {
         setLocation({
@@ -245,7 +290,7 @@ export default function AddReport() {
                   numberOfLines={4} maxLength={50} multiline={false}/>
         </View>
 
-        <Pressable style={({pressed})=>[styles.button, pressed && {backgroundColor:'#2150fd'}]}>
+        <Pressable style={({pressed})=>[styles.button, pressed && {backgroundColor:'#2150fd'}]} onPress={sendData} >
           <Text>Submit</Text>
         </Pressable>
 
@@ -318,11 +363,7 @@ export default function AddReport() {
           </Modal>
         )}
 
-        <View style={{ padding: 10 }}>
-          <Text selectable style={{ fontFamily: 'monospace' }}>
-            {JSON.stringify(dataToSend, null, 2)}
-          </Text>
-        </View>
+
 
       </ScrollView>
     </KeyboardAvoidingView>

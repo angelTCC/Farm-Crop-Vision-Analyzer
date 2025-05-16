@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -14,8 +14,10 @@ import Dashboard from './components/Dashboard';
 
 const Tab = createBottomTabNavigator();
 
+
 export default function App() {
   const [ isLoggedIn, setIsLoggedIn ] = useState(false)
+
   return (
   <NavigationContainer>
     {!isLoggedIn ? (
