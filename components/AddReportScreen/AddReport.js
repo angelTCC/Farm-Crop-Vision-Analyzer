@@ -1,15 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Image, Text, TextInput, ScrollView, Pressable, Modal, FlatList, Alert, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, BackHandler} from 'react-native';
-import { AddReportStyles as styles } from './StyleAddReport'; 
+import { View, Image, Text, TextInput, ScrollView, Pressable, Modal, FlatList, Alert, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity} from 'react-native';
+import { AddReportStyles as styles, stylesCamera } from './StyleAddReport'; 
 import Entypo from '@expo/vector-icons/Entypo';
-
 import * as SQLite from 'expo-sqlite';
-
 import * as Location from 'expo-location';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
-
-
+import CameraModal from './CameraModal';
 
 export default function AddReport() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -18,7 +15,6 @@ export default function AddReport() {
   const crops = [{name: 'Corn', id:'1d'}, {name:'Soybean', id:'2'}, {name:'Rice', id:'3'}];
   const fertilizers = [{name:'Urea', id:'a'}, {name:'Compost', id:'b'}, {name:'NPK', id:'c'}];
   const soils = [ {name:'Sandy', id:'s1'},{ name:'Clay', id: 's2'}, { name: 'Silty', id: 's3' }];
-
   const [farmName, setFarmName] = useState('');
   const [location, setLocation] = useState(null);
   const [crop, setCrop] = useState('crop');
@@ -30,12 +26,8 @@ export default function AddReport() {
   const [loadLocation, setLoadLocation] = useState(null);
   
   {/** photo */}
-  const [facing, setFacing] = useState('back');
-  const [permission, requestPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false)
-  const cameraRef = useRef(null);
   const [photoUri, setPhotoUri] = useState(null);
-  const [showPhotoPreview , setShowPhotoPreview] = useState(false);
   const [savedPhotoUri, setSavedPhotoUri] = useState(null);
   const [showPhotoSaved , setShowPhotoSaved] = useState(false);
 
@@ -146,42 +138,13 @@ export default function AddReport() {
       .catch(err => Alert.alert("Error", "Hubo un problema al obtener los datos del clima. Intenta de nuevo más tarde."));
       setLoadLocation(null);
   };
-  function toggleCameraFacing() {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
-  }
-  const takePicture = async () => {
-    if (cameraRef.current) {
-      const photo = await cameraRef.current.takePictureAsync({ base64: true });
-      setPhotoUri(photo.uri);
-      setShowCamera(false);
-      setShowPhotoPreview(true);
-    }
-  };
-  const savePhoto = async () => {
-    const { status } = await MediaLibrary.requestPermissionsAsync();
-    if (status === 'granted') {
-      await MediaLibrary.saveToLibraryAsync(photoUri);
-      setSavedPhotoUri(photoUri); 
-      Alert.alert('Foto guardada en galería');
-      setPhotoUri(null);
-      setShowPhotoPreview(false);
-      setShowPhotoSaved(true)
-    } else {
-      Alert.alert('Permiso denegado para guardar imagen');
-    }
-  };
-  useEffect(() => {
-    if (!permission || !permission.granted) {
-      requestPermission();
-    }
-  }, []);
 
 
   return (
     <KeyboardAvoidingView 
           style={[styles.container]}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0} // importante
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
       >
       <ScrollView keyboardDismissMode='on-drag'>
 
@@ -322,81 +285,9 @@ export default function AddReport() {
             </View>
         </Modal>
 
-        {showCamera && (
-          <Modal visible={showCamera} animationType="slide">
-            <View style={stylesCamera.container}>
-              <CameraView style={stylesCamera.camera} facing={facing} ref={cameraRef}>
-                <View style={stylesCamera.buttonContainer}>
-                  <TouchableOpacity style={stylesCamera.button} onPress={toggleCameraFacing}>
-                    <Text style={stylesCamera.text}>Flip</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={stylesCamera.button} onPress={takePicture}>
-                    <Text style={stylesCamera.text}>Take</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={stylesCamera.button} onPress={() => setShowCamera(false)}>
-                    <Text style={stylesCamera.text}>Close</Text>
-                  </TouchableOpacity>
-                </View>
-              </CameraView>
-            </View>
-        
-          </Modal>
-        )}
-
-        { showPhotoPreview && photoUri && (
-          <Modal visible={showPhotoPreview}>
-              <View style={{ flex: 1 }}>
-                <Image
-                  source={{ uri: photoUri }}
-                  style={{ width: '100%', height: '100%' }}
-                  resizeMode="cover"
-                />
-                <View style={{ flexDirection:'row', position: 'absolute', bottom: 50, width: '100%', alignItems: 'center' }}>
-                  <TouchableOpacity onPress={savePhoto} style={{ flex:1, alignItems:'center'}}>
-                    <Text style={{ color: 'white', fontSize: 18 }}>Guardar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={{flex:1, alignItems:'center'}} onPress={() => setPhotoUri(null)}>
-                    <Text style={{ color: 'white', fontSize: 18 }}>Cancelar</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-          </Modal>
-        )}
-
-
+       <CameraModal showCamera={showCamera} setShowCamera={setShowCamera}/>
 
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
-
-
-const stylesCamera = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  message: {
-    textAlign: 'center',
-    paddingBottom: 10,
-  },
-  camera: {
-    flex: 1,
-  },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 64,
-  },
-  button: {
-    flex: 1,
-    alignSelf: 'flex-end',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-});

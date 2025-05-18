@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
 // Importing the components
 import Home from './components/Home';
-import DetailReport from './components/DetailReport';
+import Reports from './components/ReportScreen/Reports';
 import AddReport from './components/AddReportScreen/AddReport';
-import Reports from './components/Reports';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import Menu from './components/Menu';
-import Dashboard from './components/Dashboard';
 
 const Tab = createBottomTabNavigator();
-
 
 export default function App() {
   const [ isLoggedIn, setIsLoggedIn ] = useState(false)
@@ -23,26 +18,7 @@ export default function App() {
     {!isLoggedIn ? (
       <Home logged={isLoggedIn} setLogged={setIsLoggedIn} />
     ) : (
-      <Tab.Navigator>
-        {/*
-        <Tab.Screen 
-                options={{
-                  tabBarIcon: ({color, size}) => (
-                    <MaterialIcons name="notes" size={24} color="black" />
-                  ),
-                }}
-                name="Menu" 
-                component={Menu} />
-        <Tab.Screen 
-                options={{
-                  tabBarIcon: ({color, size}) => (
-                    <MaterialIcons name="notes" size={24} color="black" />
-                  ),
-                }}
-                name="Dashboard" 
-                component={Dashboard} />
-        */}
-
+      <Tab.Navigator >
         <Tab.Screen   
                 options={{
                   tabBarIcon: ({color, size}) => (
