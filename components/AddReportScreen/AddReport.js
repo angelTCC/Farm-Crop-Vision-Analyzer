@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Image, Text, TextInput, ScrollView, Pressable, Modal, FlatList, Alert, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity} from 'react-native';
 import { AddReportStyles as styles, stylesCamera } from './StyleAddReport'; 
-import Entypo from '@expo/vector-icons/Entypo';
 import * as SQLite from 'expo-sqlite';
 import * as Location from 'expo-location';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import * as MediaLibrary from 'expo-media-library';
 import CameraModal from './CameraModal';
 
 export default function AddReport() {
@@ -30,16 +27,6 @@ export default function AddReport() {
   const [photoUri, setPhotoUri] = useState(null);
   const [savedPhotoUri, setSavedPhotoUri] = useState(null);
   const [showPhotoSaved , setShowPhotoSaved] = useState(false);
-
-  const dataToSend = {
-    farmName,
-    location,
-    crop,
-    fertilizer,
-    soil,
-    photo: savedPhotoUri,
-    observation
-  }
 
   const sendData = async () => {
     try {
@@ -214,34 +201,7 @@ export default function AddReport() {
         </View>
 
         {/* Take Photo */}
-        <View>
-          <Text>Image</Text>
-          {showPhotoSaved ? (
-              <View style={{alignItems:'center'}}>
-                <Image
-                  source={{ uri: savedPhotoUri }}
-                  style={{ width: 200, height: 300, borderRadius:10 ,marginBottom: 10 }}
-                />
-                <Pressable style={({pressed})=>[styles.button, pressed && [styles.pressButton]]}
-                            onPress={()=> {
-                              setShowPhotoSaved(false);
-                              setPhotoUri(null)
-                            }}>
-                  <Text>Delete</Text>
-                </Pressable>
-              </View>
-          ) : 
-          (
-            <View style={{alignItems:'center', justifyContent:'center', alignContent:'center'}}>
-              <Pressable style={({pressed})=>[
-                          styles.imageButton, {width:'80%'}, pressed && {backgroundColor:'rgb(151, 158, 165)'}
-                        ]} onPress={() => setShowCamera(true)}>
-                <Entypo name="camera" size={40} color="black" />
-                <Text>Take Photo</Text>
-              </Pressable>
-            </View>
-          )}
-        </View>
+        <CameraModal showCamera={showCamera} setShowCamera={setShowCamera} setSaveUri={(uri)=>setSavedPhotoUri(uri)} reset={savedPhotoUri === null}/>
 
         {/* Observations */}
         <View>
@@ -285,7 +245,6 @@ export default function AddReport() {
             </View>
         </Modal>
 
-       <CameraModal showCamera={showCamera} setShowCamera={setShowCamera}/>
 
       </ScrollView>
     </KeyboardAvoidingView>

@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Pressable, Alert, Image } from 'react-native';
-
 import * as SQLite from 'expo-sqlite';
 import { useEffect } from 'react';
-
 import * as MediaLibrary from 'expo-media-library';
-
+import { reportStyle as styles } from './styles';
 
 export default function Reports() {
 
     const [reportsData, setReportsData] = useState([]);
-        const [db, setDb] = useState(null); // Add this line
-
+    const [db, setDb] = useState(null); // Add this line
     const [hasMediaPermission, setHasMediaPermission] = useState(false);
-
-
     useEffect(() => {
         (async () => {
             const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -24,40 +19,39 @@ export default function Reports() {
             }
         }) ();
     }, []);
-  
-  const Item = ({ name, location, crop, fertilizer, soil, observation, photoUri }) => {
-    
+    const Item = ({ name, location, crop, fertilizer, soil, observation, photoUri }) => {
+
 
     return (
     <View style={[styles.innerContainer, { flexDirection: 'row' }]}>
-      <View style={{ flex: 3 }}>
+        <View style={{ flex: 3 }}>
         <Text>NAME: {name}</Text>
         <Text>LOCATION: {location}</Text>
         <Text>CROP: {crop}</Text>
         <Text>FERTILIZER: {fertilizer}</Text>
         <Text>SOIL: {soil}</Text>
         <Text numberOfLines={1}>OBSERVATION: {observation}</Text>
-      </View>
-      {hasMediaPermission && photoUri ? (
+        </View>
+        {hasMediaPermission && photoUri ? (
         <Image
-          source={{ uri: photoUri }}
-          style={{
+            source={{ uri: photoUri }}
+            style={{
             width: 80,
             height: 80,
             borderRadius: 8,
             backgroundColor: '#ccc',
-          }}
-          resizeMode="cover"
-          onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
+            }}
+            resizeMode="cover"
+            onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
         />
-      ) : (
+        ) : (
         <View style={{ alignItems: 'center' }}>
-          <Text>No photo access</Text>
+            <Text>No photo access</Text>
         </View>
-      )}
+        )}
     </View>
-  );
-  }
+    );
+    }
     const renderItem = ({ item }) => (
         <Item 
             name={item.farmName} 
@@ -94,9 +88,8 @@ export default function Reports() {
         };
         initDB();
     }, []);
-
     const upDateData = async () => {
-                          try {
+                            try {
                         const results = await db.getAllAsync('SELECT * FROM reports');
                         setReportsData(results);
                     } catch (err) {
@@ -124,61 +117,3 @@ export default function Reports() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: '#fff',
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    innerContainer: {
-        padding: 15,
-        marginVertical: 10,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 4,
-    },
-    itemTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 5,
-    },
-    itemText: {
-        fontSize: 16,
-        color: '#333',
-        marginBottom: 5,
-    },
-        button: {
-      borderWidth: 1,
-      borderColor: '#ddd',
-      borderRadius: 8,
-      padding: 12,
-      margin: 10,
-      fontSize: 16,
-      alignItems:'center',
-      backgroundColor:'#ddd', 
-    },
-    imageButton:{
-      flex:1, alignItems:'center', justifyContent:'center', 
-      borderColor: '#ccc', borderStyle: 'dashed',borderRadius:8, 
-      borderWidth:2, padding:10, margin:10,
-      height:120
-    },
-    pressButton: {
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        padding: 12,
-        margin: 10,
-        fontSize: 16,
-        backgroundColor:'rgb(151, 158, 165)', 
-      }
-});

@@ -1,60 +1,96 @@
-import React, { useState, useRef } from 'react';
-import { Modal, TouchableOpacity, Text, View, Alert, Image } from 'react-native';
-import {stylesCamera} from './StyleAddReport';
+import React, { useState, useRef, useEffect } from 'react';
+import { Modal, TouchableOpacity, Text, View, Alert, Image, Pressable} from 'react-native';
+import { AddReportStyles as styles, stylesCamera } from './StyleAddReport'; 
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
+import Entypo from '@expo/vector-icons/Entypo';
 
-export default function CameraModal ({showCamera, setShowCamera}) {
-    const [facing, setFacing] = useState('back');
-    const [permission, requestPermission] = useCameraPermissions();
+
+export default function CameraModal ({showCamera, setShowCamera, setSaveUri, reset}) {
+  const [facing, setFacing] = useState('back');
+  const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef(null);
   const [photoUri, setPhotoUri] = useState(null);
   const [showPhotoPreview , setShowPhotoPreview] = useState(false);
-  const [savedPhotoUri, setSavedPhotoUri] = useState('');
-
-
-    if (!permission) {
-    // Camera permissions are still loading.
-    return <View />;
-        }
-    if (!permission.granted) {
-    // Camera permissions are not granted yet.
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
-      </View>
-    );
-    }
-    function toggleCameraFacing() {
+  const [showPhotoSaved , setShowPhotoSaved] = useState(false);
+  const [savedPhotoUri, setSavedPhotoUri] = useState(null);
+    
+  function toggleCameraFacing() {
         setFacing(current => (current === 'back' ? 'front' : 'back'));
     }
-      const takePicture = async () => {
+  const takePicture = async () => {
     if (cameraRef.current) {
       const photo = await cameraRef.current.takePictureAsync({ base64: true });
       setPhotoUri(photo.uri);
       setShowCamera(false);
       setShowPhotoPreview(true);
-     
-    }
-    ;
+    };
   };
-    const savePhoto = async () => {
+  const savePhoto = async () => {
     const { status } = await MediaLibrary.requestPermissionsAsync();
     if (status === 'granted') {
       await MediaLibrary.saveToLibraryAsync(photoUri);
-      setSavedPhotoUri(photoUri); 
-      Alert.alert('Foto guardada en galería');
-      setPhotoUri(null);
+      setSaveUri(photoUri); 
+      setSavedPhotoUri(photoUri);
       setShowPhotoPreview(false);
       setShowPhotoSaved(true)
+      Alert.alert('Foto guardada en galería');
     } else {
       Alert.alert('Permiso denegado para guardar imagen');
     }
   };
+  useEffect(() => {
+    if (reset) {
+      setPhotoUri(null);
+      
+      setSaveUri(null); // si quieres limpiar también el URI interno
+      setShowPhotoSaved(false);
+    } 
+  }, [reset]);
+  if (!permission) {
+  // Camera permissions are still loading.
+  return <View />;
+      }
+  if (!permission.granted) {
+  // Camera permissions are not granted yet.
+  return (
+    <View style={styles.container}>
+      <Text style={styles.message}>We need your permission to show the camera</Text>
+      <Button onPress={requestPermission} title="grant permission" />
+    </View>
+  );
+  }
 
-    return (
+  return (
+      <View>
         <View>
+          <Text>Image</Text>
+          {showPhotoSaved ? (
+              <View style={{alignItems:'center'}}>
+                <Image
+                  source={{ uri: savedPhotoUri }}
+                  style={{ width: 200, height: 300, borderRadius:10 ,marginBottom: 10 }}
+                />
+                <Pressable style={({pressed})=>[styles.button, pressed && [styles.pressButton]]}
+                            onPress={()=> {
+                              setShowPhotoSaved(false);
+                              setPhotoUri(null)
+                            }}>
+                  <Text>Delete</Text>
+                </Pressable>
+              </View>
+          ) : 
+          (
+            <View style={{alignItems:'center', justifyContent:'center', alignContent:'center'}}>
+              <Pressable style={({pressed})=>[
+                          styles.imageButton, {width:'80%'}, pressed && {backgroundColor:'rgb(151, 158, 165)'}
+                        ]} onPress={() => setShowCamera(true)}>
+                <Entypo name="camera" size={40} color="black" />
+                <Text>Take Photo</Text>
+              </Pressable>
+            </View>
+          )}
+        </View>
         <Modal visible={showCamera} animationType='slide'>
             <View style={stylesCamera.container} >
               <CameraView style={stylesCamera.camera} facing={facing} ref={cameraRef}>
@@ -72,7 +108,7 @@ export default function CameraModal ({showCamera, setShowCamera}) {
               </CameraView>
             </View>
         </Modal>
-                { showPhotoPreview && photoUri && (
+        { showPhotoPreview && photoUri && (
           <Modal visible={showPhotoPreview}>
               <View style={{ flex: 1 }}>
                 <Image
@@ -91,7 +127,7 @@ export default function CameraModal ({showCamera, setShowCamera}) {
               </View>
           </Modal>
         )}
-        </View>
-        
-    );
+      </View>
+      
+  );
 }
