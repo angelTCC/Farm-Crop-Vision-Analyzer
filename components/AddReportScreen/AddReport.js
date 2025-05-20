@@ -19,7 +19,8 @@ export default function AddReport() {
     crop:'Select', 
     fertilizer:'Select', 
     soil:'Select', 
-    location: null 
+    location: null ,
+    savedPhotoUri: null
   };
   function formReducer(state, action) {
     switch (action.type) {
@@ -35,7 +36,6 @@ export default function AddReport() {
   const [callback, setSelectCallback] = useState(null);
   const [showCamera, setShowCamera] = useState(false)
   const [savedPhotoUri, setSavedPhotoUri] = useState(null);
-  const [showPhotoSaved , setShowPhotoSaved] = useState(false);
 
   useEffect(() => {
     initDB();
@@ -54,7 +54,6 @@ export default function AddReport() {
     Alert.alert('Succes', 'data stored');
       dispatch({type: 'RESET_FORM'})
       setSavedPhotoUri(null);
-      setShowPhotoSaved(false);
     } catch (err) {
       Alert.alert('Error', 'insert data wrong')
     }

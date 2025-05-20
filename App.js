@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
 // Importing the components
-import Home from './components/Home';
+import Home from './components/Ho/Home';
 import Reports from './components/ReportScreen/Reports';
 import AddReport from './components/AddReportScreen/AddReport';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
