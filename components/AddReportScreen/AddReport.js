@@ -1,18 +1,31 @@
-import React, { useState, useEffect, useReducer } from 'react';
-import { View, Text, TextInput, ScrollView, Pressable, Modal, FlatList, Alert, KeyboardAvoidingView, Platform} from 'react-native';
+import { useState, useEffect, useReducer } from 'react';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  ScrollView, 
+  Pressable, 
+  Modal, 
+  FlatList, 
+  Alert, 
+  KeyboardAvoidingView, 
+  Platform
+} from 'react-native';
+
+// IMPORT STYLES
 import { AddReportStyles as styles, optionStyle } from './StyleAddReport'; 
-import CameraModal from './CameraModal';
+
+// IMPORT COMPONENTS 
 import { insertReport, initDB } from './SQLiteConnection';
 import { getLocation } from './weatherAPI';
 import { crops, fertilizers, soils } from './modalOptions';
+import CameraModal from './CameraModal';
+
 
 
 export default function AddReport() {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [dataModal, setDataModal] = useState([]);
-  const [modalTitle, setModalTitle] = useState('');
 
-  const YOUR_API_KEY = '6c0f59ca02b01f3e25302ad35a5f305c';
+  {/* REDUCE HOOK TO STORE PARAMETERS IN THE FORM */}
   const initialState = { 
     farmName: '', 
     observation: '', 
@@ -33,16 +46,25 @@ export default function AddReport() {
     }
   };
   const [state, dispatch] = useReducer(formReducer, initialState);
+
+  {/* STATES TO CONTROL DYNAMIC */}
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [dataModal, setDataModal] = useState([]);
+  const [modalTitle, setModalTitle] = useState('');
+  const YOUR_API_KEY = '6c0f59ca02b01f3e25302ad35a5f305c';
   const [callback, setSelectCallback] = useState(null);
   const [showCamera, setShowCamera] = useState(false)
   const [savedPhotoUri, setSavedPhotoUri] = useState(null);
 
+  {/* CHEAK OUT DATABASE --------------------------------- */}
   useEffect(() => {
     initDB();
   }, []);
+
+  {/* FUNCTION TO STORE DATA IN DATABASE ------------------ */}
   const sendData = async () => {
     try{
-        const success = await insertReport({
+      const success = await insertReport({
       farmName: state.farmName, 
       location: state.location, 
       crop: state.crop, 
@@ -52,13 +74,14 @@ export default function AddReport() {
       observation:state.observation,
     });
     Alert.alert('Succes', 'data stored');
-      dispatch({type: 'RESET_FORM'})
-      setSavedPhotoUri(null);
+    dispatch({type: 'RESET_FORM'});
+    setSavedPhotoUri(null);
     } catch (err) {
       Alert.alert('Error', 'insert data wrong')
     }
   };
 
+  {/* SHOW OPTIONS ---------------------------------------- */}
   const toggleModal = (data, title, setStateCallback) => {
     setDataModal(data);
     setModalTitle(title);
@@ -66,7 +89,6 @@ export default function AddReport() {
     setIsModalVisible(!isModalVisible);
 
   };
-
   const Item = ({name}) => {
     return (
       <View>
@@ -81,6 +103,7 @@ export default function AddReport() {
   };
   const renderItem = ({item}) => <Item name={item.name} />;
 
+  {/* GET ENVIROMENT CONDITIONS WITH API ------------------- */}
   const fetchAndDispatchLocation = async () => {
     dispatch({type:'SET_FIELD', field:'location', value:'Loading...'});
     const weatherData = await getLocation(YOUR_API_KEY);

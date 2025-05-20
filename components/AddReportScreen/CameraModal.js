@@ -1,11 +1,25 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Modal, TouchableOpacity, Text, View, Alert, Image, Pressable} from 'react-native';
+
+// IMPORT STYLES
 import { AddReportStyles as styles, stylesCamera } from './StyleAddReport'; 
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+
+// IMPORT LIBRARIES TO CONTROL CAMERA
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
+
+// IMPORT ICONS
 import Entypo from '@expo/vector-icons/Entypo';
 
 
+{/**
+  COMPONENT CAMERA: manage all process in camera like open the camera, take photo, show it, save it. The 
+  input are:
+  - showCamera: 
+  - setShowCamera:
+  - setSaveUri:
+  - reset:
+  */}
 export default function CameraModal ({showCamera, setShowCamera, setSaveUri, reset}) {
   const [facing, setFacing] = useState('back');
   const [permission, requestPermission] = useCameraPermissions();

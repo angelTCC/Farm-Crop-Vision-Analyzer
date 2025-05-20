@@ -1,40 +1,42 @@
-# AgriReportApp
+# 📱 ReportApp
 
-**AgriReportApp** is a simple mobile application built with **React Native** that allows users to record and view agricultural reports. The app includes local data storage, weather-based location info, and photo capture functionality.
+**ReportApp** is a mobile application built with **React Native** that allows users to record and view custom reports. It features local data storage, photo capture, and weather-based location information.
 
-## Features
+> 🚀 This project is part of my journey to become a **software developer**. I'm building practical tools to learn modern technologies and apply them to real-world scenarios.
 
-* **Home Screen**: One-click access to login (no credentials required).
-* **Add Report Screen**:
+## ✨ Features
 
-  * Fill out a form with farm name, crop, fertilizer, soil type, and observation.
-  * Fetch current location and weather using an external API.
-  * Capture a photo with the device camera.
-  * Store the report locally using SQLite.
-* **Reports Screen**:
+* 🏠 **Home Screen**
 
-  * Display saved reports with all fields and attached images.
+  * Quick access to enter the app (no login credentials needed).
 
-## Tech Stack & Tools
+* 📝 **Add Report Screen**
 
-* **React Native**: UI development
-* **Expo SQLite**: Local database
-* **Expo MediaLibrary & Camera**: Capture and display images
-* **Custom Reducers & State Management**: Form handling
-* **OpenWeatherMap API**: Get weather and location data
+  * Fill out a custom report form with various inputs.
+  * 📍 Get your current location and 🌤️ weather data via an API.
+  * 📸 Take a photo using the device camera.
+  * 💾 Store the report locally using SQLite.
 
-## Installation
+* 📚 **Reports Screen**
+
+  * View previously saved reports with all fields and attached images.
+
+## 🛠 Tech Stack & Tools Used
+
+* ⚛️ **React Native (Expo)** – UI & navigation
+* 🗄️ **SQLite (via Expo SQLite)** – Local data storage
+* 📷 **Expo Camera & MediaLibrary** – Capture and access images
+* 🌐 **OpenWeatherMap API** – Fetch live weather and location info
+* ⚙️ **State Management with Reducers** – Efficient form and data control
+
+## 🧪 Installation
 
 ```bash
 npm install
 npx expo start
 ```
 
-## Note
+## ⚠️ Note
 
-* This app is for demo/testing purposes.
-* API key for weather is hardcoded – replace with your own for production use.
-
----
-
-Let me know if you want to include screenshots or add Spanish/Quechua versions.
+* This is a **learning project**, mainly for testing and development.
+* 🌐 The weather API key is hardcoded — remember to replace it with your own in production!

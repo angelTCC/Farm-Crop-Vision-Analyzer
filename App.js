@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+
 
 // Importing the components
 import Home from './components/Ho/Home';
 import Reports from './components/ReportScreen/Reports';
 import AddReport from './components/AddReportScreen/AddReport';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 const Tab = createBottomTabNavigator();
 
@@ -19,6 +20,7 @@ export default function App() {
       <Home logged={isLoggedIn} setLogged={setIsLoggedIn} />
     ) : (
       <Tab.Navigator >
+        {/* tap to add report */}
         <Tab.Screen   
                 options={{
                   tabBarIcon: ({color, size}) => (
@@ -28,6 +30,7 @@ export default function App() {
                 name="AddReport" 
                 component={AddReport} />
 
+        {/* tab to show reports */}
         <Tab.Screen 
                 options={{
                   tabBarIcon: ({color, size}) => (
