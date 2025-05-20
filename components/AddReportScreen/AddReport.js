@@ -1,28 +1,38 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Image, Text, TextInput, ScrollView, Pressable, Modal, FlatList, Alert, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity} from 'react-native';
-import { AddReportStyles as styles, stylesCamera } from './StyleAddReport'; 
-import * as Location from 'expo-location';
+import React, { useState, useEffect, useReducer } from 'react';
+import { View, Text, TextInput, ScrollView, Pressable, Modal, FlatList, Alert, KeyboardAvoidingView, Platform} from 'react-native';
+import { AddReportStyles as styles, optionStyle } from './StyleAddReport'; 
 import CameraModal from './CameraModal';
 import { insertReport, initDB } from './SQLiteConnection';
+import { getLocation } from './weatherAPI';
+import { crops, fertilizers, soils } from './modalOptions';
+
 
 export default function AddReport() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [dataModal, setDataModal] = useState([]);
   const [modalTitle, setModalTitle] = useState('');
-  const crops = [{name: 'Corn', id:'1d'}, {name:'Soybean', id:'2'}, {name:'Rice', id:'3'}];
-  const fertilizers = [{name:'Urea', id:'a'}, {name:'Compost', id:'b'}, {name:'NPK', id:'c'}];
-  const soils = [ {name:'Sandy', id:'s1'},{ name:'Clay', id: 's2'}, { name: 'Silty', id: 's3' }];
 
   const YOUR_API_KEY = '6c0f59ca02b01f3e25302ad35a5f305c';
-  const [farmName, setFarmName] = useState('');
-  const [location, setLocation] = useState(null);
-  const [observation, setObservation] = useState('');
+  const initialState = { 
+    farmName: '', 
+    observation: '', 
+    crop:'Select', 
+    fertilizer:'Select', 
+    soil:'Select', 
+    location: null 
+  };
+  function formReducer(state, action) {
+    switch (action.type) {
+      case 'SET_FIELD':
+        return { ...state, [action.field]: action.value };
+      case 'RESET_FORM':
+        return initialState;
+      default:
+        return state;
+    }
+  };
+  const [state, dispatch] = useReducer(formReducer, initialState);
   const [callback, setSelectCallback] = useState(null);
-  const [soil, setSoil] = useState('soil');
-  const [crop, setCrop] = useState('crop');
-  const [fertilizer,setFertilizer] = useState('fertilizer');
-  const [loadLocation, setLoadLocation] = useState(null);
-
   const [showCamera, setShowCamera] = useState(false)
   const [savedPhotoUri, setSavedPhotoUri] = useState(null);
   const [showPhotoSaved , setShowPhotoSaved] = useState(false);
@@ -31,22 +41,25 @@ export default function AddReport() {
     initDB();
   }, []);
   const sendData = async () => {
-  try{
-      const success = await insertReport({
-    farmName, location, crop, fertilizer, soil, photoUri: savedPhotoUri, observation,
-  });
-  Alert.alert('Succes', 'data stored');
-    setLocation('');
-    setCrop('cro');
-    setFertilizer('fertilizer');
-    setSoil('soil');
-    setSavedPhotoUri(null);
-    setObservation('');
-    setShowPhotoSaved(false);
-  } catch (err) {
-    Alert.alert('Error', 'insert data wrong')
-  }
+    try{
+        const success = await insertReport({
+      farmName: state.farmName, 
+      location: state.location, 
+      crop: state.crop, 
+      fertilizer: state.fertilizer, 
+      soil: state.soil, 
+      photoUri: savedPhotoUri, 
+      observation:state.observation,
+    });
+    Alert.alert('Succes', 'data stored');
+      dispatch({type: 'RESET_FORM'})
+      setSavedPhotoUri(null);
+      setShowPhotoSaved(false);
+    } catch (err) {
+      Alert.alert('Error', 'insert data wrong')
+    }
   };
+
   const toggleModal = (data, title, setStateCallback) => {
     setDataModal(data);
     setModalTitle(title);
@@ -54,6 +67,7 @@ export default function AddReport() {
     setIsModalVisible(!isModalVisible);
 
   };
+
   const Item = ({name}) => {
     return (
       <View>
@@ -67,36 +81,19 @@ export default function AddReport() {
     );
   };
   const renderItem = ({item}) => <Item name={item.name} />;
-  {/* i need to add stroe insam device without sql */}
-  const getLocation = async () => {
-    setLoadLocation('Loading...')
 
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      console.log('Permission to access location was denied');
-      return;
+  const fetchAndDispatchLocation = async () => {
+    dispatch({type:'SET_FIELD', field:'location', value:'Loading...'});
+    const weatherData = await getLocation(YOUR_API_KEY);
+    if (weatherData) {
+      dispatch({
+        type: 'SET_FIELD',
+        field: 'location',
+        value: weatherData,
+      });
     }
-  
-    let gps = await Location.getCurrentPositionAsync({});
-    const latitude = gps.coords.latitude;
-    const longitude = gps.coords.longitude;
-  
-    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${YOUR_API_KEY}`)
-      .then(res => res.json())
-      .then(data => {
-        setLocation({
-          main: data.weather[0].main,
-          lon: data.coord.lon,
-          lat: data.coord.lat,
-          des: data.weather[0].description,
-          temp: data.main.temp,
-          country: data.sys.country
-        });
-      })
-      .catch(err => Alert.alert("Error", "Hubo un problema al obtener los datos del clima. Intenta de nuevo más tarde."));
-      setLoadLocation(null);
   };
-  
+
   return (
     <KeyboardAvoidingView 
           style={[styles.container]}
@@ -110,63 +107,72 @@ export default function AddReport() {
           <Text>Farm name</Text>
           <TextInput 
             style={styles.input}
-            value={farmName}
-            onChangeText={setFarmName}
+            value={state.farmName}
+            onChangeText={(text)=> dispatch({type:'SET_FIELD', field:'farmName', value:text})}
           />
         </View>
         
-        {/*Whetter and localization */}
+        {/*GPS conditions */}
         <View>
           <Text>Wetter and location</Text>
-          {/* Whetter conditions*/}
           <View style={{flexDirection:'row'}}>
             <Pressable 
-                onPress={getLocation}
+                onPress={fetchAndDispatchLocation}
                 style={({pressed})=>[styles.button, {flex:3}, pressed && styles.pressButton]}>
               <Text style={{fontSize:13}}>Get local enviroment 🌤️ 📍 </Text>
             </Pressable>
             <Pressable 
-                onPress={()=> setLocation('')}
+                onPress={()=> dispatch({type:'SET_FIELD', field:'location', value:null})}
                 style={({pressed})=>[styles.button, {flex:1}, pressed && styles.pressButton]}>
               <Text style={{fontSize:13}}>remove </Text>
             </Pressable>
           </View>
-          {location ? (
-            <View style={{alignItems:'center', alignSelf:'center', backgroundColor:'rgb(134, 191, 229)', width:'50%', borderRadius:20}}>
-            <Text>Conditions: {location.main}</Text>
-            <Text>Longitud: {location.lon}</Text>
-            <Text>Latitud:  {location.lat}</Text>
-            <Text>Description: {location.des}</Text>
-            <Text>Temperature: {location.temp}</Text>
-            <Text>Country: {location.country}</Text>
+          {state.location ? (
+            <View style={{marginBottom:10}}>
+              {Object.entries(state.location).map(([key, value]) => (
+                <Text key={key}>
+                  {key}: {value}
+                </Text>
+              ))}
             </View>
           ): (
             <>
-            <Text>{loadLocation}</Text></>
+            <Text>{state.location}</Text></>
           )}
         </View>
 
         {/* Crop Fertilizer Soils */}
         <View>
           <Text>Conditions</Text>
-          <View style={{flexDirection:'row'}}>
-            <Pressable onPress={()=>toggleModal(crops, 'Crops', setCrop)} style={({pressed})=>[
-              styles.input, {backgroundColor:'#ddd', flex:1}, pressed && {backgroundColor:'rgb(151, 158, 165)'}
-            ]}>
-              <Text>{crop}</Text>
-            </Pressable>      
+          {/** crop */}
+          <View>
+            <View style={{flexDirection:'row'}}>
+              <Text style={[styles.input, {flex:1}]}>Crop:</Text>
+              <Pressable onPress={()=>toggleModal(crops, 'Crops', (value)=>dispatch({type:'SET_FIELD', field:'crop', value}))} style={({pressed})=>[
+                styles.input, {backgroundColor:'#ddd', flex:1}, pressed && {backgroundColor:'rgb(151, 158, 165)'}
+              ]}>
+                <Text>{state.crop}</Text>
+              </Pressable> 
+            </View>     
           {/* Fertilizer types */}
-            <Pressable onPress={()=>toggleModal(fertilizers, 'Fertilzers', setFertilizer)} style={({pressed})=>[
-                styles.input, {backgroundColor:'#ddd', flex:1}, pressed && {backgroundColor:'rgb(151, 158, 165)'}
-              ]}>
-              <Text>{fertilizer}</Text>
-            </Pressable>
+          <View style={{flexDirection:'row'}}>
+                           <Text style={[styles.input, {flex:1}]}>Fertilizer:</Text>
+
+              <Pressable onPress={()=>toggleModal(fertilizers, 'Fertilzers', (value)=>dispatch({type:'SET_FIELD', field:'fertilizer', value}))} style={({pressed})=>[
+                  styles.input, {backgroundColor:'#ddd', flex:1}, pressed && {backgroundColor:'rgb(151, 158, 165)'}
+                ]}>
+                <Text>{state.fertilizer}</Text>
+              </Pressable>
+            </View>
           {/* Soil type */}
-            <Pressable onPress={()=>toggleModal(soils, 'Soils', setSoil)} style={({pressed})=>[
-                styles.input, {backgroundColor:'#ddd', flex:1}, pressed && {backgroundColor:'rgb(151, 158, 165)'}
-              ]}>
-              <Text>{soil}</Text>
-            </Pressable>
+                <View style={{flexDirection:'row'}}>
+              <Text style={[styles.input, {flex:1}]}>Soil:</Text>
+              <Pressable onPress={()=>toggleModal(soils, 'Soils', (value)=>dispatch({type:'SET_FIELD', field:'soil', value}))} style={({pressed})=>[
+                  styles.input, {backgroundColor:'#ddd', flex:1}, pressed && {backgroundColor:'rgb(151, 158, 165)'}
+                ]}>
+                <Text>{state.soil}</Text>
+              </Pressable>
+              </View>
           </View>
         </View>
 
@@ -177,8 +183,8 @@ export default function AddReport() {
         <View>
           <Text>Observations</Text>
           <TextInput 
-                  value={observation}
-                  onChangeText={setObservation}
+                  value={state.observation}
+                  onChangeText={(text)=>dispatch({type:'SET_FIELD', field:'observation', value:text})}
                   style={[styles.input, {height:100, textAlignVertical: 'top'}]} 
                   numberOfLines={4} maxLength={50} multiline={false}/>
         </View>
@@ -188,18 +194,8 @@ export default function AddReport() {
         </Pressable>
 
         <Modal visible={isModalVisible} animationType="slide" transparent={true}>
-            <View style={{
-              flex: 1,
-              justifyContent: 'center', 
-              alignItems: 'center',       
-              backgroundColor: 'rgba(0,0,0,0.5)'
-              }}>
-                <View style={{
-                            width:'80%',
-                            borderRadius: 20,
-                            backgroundColor: 'white',
-                            padding: 15,
-                            alignItems:'center'}}>
+            <View style={optionStyle.viewList}>
+                <View style={optionStyle.flatList}>
                   <FlatList 
                     data={dataModal}
                     keyExtractor={item => item.id}

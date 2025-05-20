@@ -21,7 +21,7 @@ export default function Reports() {
     }, []);
     const Item = ({ name, location, crop, fertilizer, soil, observation, photoUri }) => {
 
-
+        {/**use map */}
     return (
     <View style={[styles.innerContainer, { flexDirection: 'row' }]}>
         <View style={{ flex: 3 }}>

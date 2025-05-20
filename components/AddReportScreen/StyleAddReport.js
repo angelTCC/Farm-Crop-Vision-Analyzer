@@ -74,3 +74,20 @@ export const stylesCamera = StyleSheet.create({
     color: 'white',
   },
 });
+
+
+
+export const optionStyle = StyleSheet.create({
+  flatList: {
+                            width:'80%',
+                            borderRadius: 20,
+                            backgroundColor: 'white',
+                            padding: 15,
+                            alignItems:'center'},
+  viewList : {
+              flex: 1,
+              justifyContent: 'center', 
+              alignItems: 'center',       
+              backgroundColor: 'rgba(0,0,0,0.5)'
+              }
+})
