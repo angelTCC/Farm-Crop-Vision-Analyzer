@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Image, Text, TextInput, ScrollView, Pressable, Modal, FlatList, Alert, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity} from 'react-native';
 import { AddReportStyles as styles, stylesCamera } from './StyleAddReport'; 
-import * as SQLite from 'expo-sqlite';
 import * as Location from 'expo-location';
 import CameraModal from './CameraModal';
+import { insertReport, initDB } from './SQLiteConnection';
 
 export default function AddReport() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -12,32 +12,30 @@ export default function AddReport() {
   const crops = [{name: 'Corn', id:'1d'}, {name:'Soybean', id:'2'}, {name:'Rice', id:'3'}];
   const fertilizers = [{name:'Urea', id:'a'}, {name:'Compost', id:'b'}, {name:'NPK', id:'c'}];
   const soils = [ {name:'Sandy', id:'s1'},{ name:'Clay', id: 's2'}, { name: 'Silty', id: 's3' }];
+
+  const YOUR_API_KEY = '6c0f59ca02b01f3e25302ad35a5f305c';
   const [farmName, setFarmName] = useState('');
   const [location, setLocation] = useState(null);
-  const [crop, setCrop] = useState('crop');
-  const [fertilizer,setFertilizer] = useState('fertilizer');
-  const [soil, setSoil] = useState('soil');
   const [observation, setObservation] = useState('');
   const [callback, setSelectCallback] = useState(null);
-  const YOUR_API_KEY = '6c0f59ca02b01f3e25302ad35a5f305c';
+  const [soil, setSoil] = useState('soil');
+  const [crop, setCrop] = useState('crop');
+  const [fertilizer,setFertilizer] = useState('fertilizer');
   const [loadLocation, setLoadLocation] = useState(null);
-  
-  {/** photo */}
+
   const [showCamera, setShowCamera] = useState(false)
-  const [photoUri, setPhotoUri] = useState(null);
   const [savedPhotoUri, setSavedPhotoUri] = useState(null);
   const [showPhotoSaved , setShowPhotoSaved] = useState(false);
 
+  useEffect(() => {
+    initDB();
+  }, []);
   const sendData = async () => {
-    try {
-      const db = await SQLite.openDatabaseAsync('reportsDatabase');
-      await db.runAsync(
-        `INSERT INTO reports (farmName, location, crop, fertilizer, soil, photoUri, observation) 
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [farmName, JSON.stringify(location), crop, fertilizer, soil, savedPhotoUri, observation]
-      );
-      Alert.alert('Success', 'Report submitted!');
-          setFarmName('');
+  try{
+      const success = await insertReport({
+    farmName, location, crop, fertilizer, soil, photoUri: savedPhotoUri, observation,
+  });
+  Alert.alert('Succes', 'data stored');
     setLocation('');
     setCrop('cro');
     setFertilizer('fertilizer');
@@ -45,37 +43,10 @@ export default function AddReport() {
     setSavedPhotoUri(null);
     setObservation('');
     setShowPhotoSaved(false);
-    } catch(err) {
-      Alert.alert('Error', 'Data don\'t sent')
-    }
+  } catch (err) {
+    Alert.alert('Error', 'insert data wrong')
   }
-  
-  useEffect(() => {
-    const initDB = async () => {
-      try {
-
-        const db = await SQLite.openDatabaseAsync('reportsDatabase');
-
-        await db.execAsync(`
-          CREATE TABLE IF NOT EXISTS reports (
-            id INTEGER PRIMARY KEY NOT NULL,
-            farmName TEXT,
-            location TEXT,
-            crop TEXT,
-            fertilizer TEXT,
-            soil TEXT,
-            photoUri TEXT,
-            observation TEXT
-          );
-        `);
-      } catch (err) {
-        Alert.alert('error database');
-      }
-    };
-
-    initDB();
-  }, []);
-
+  };
   const toggleModal = (data, title, setStateCallback) => {
     setDataModal(data);
     setModalTitle(title);
@@ -125,8 +96,7 @@ export default function AddReport() {
       .catch(err => Alert.alert("Error", "Hubo un problema al obtener los datos del clima. Intenta de nuevo más tarde."));
       setLoadLocation(null);
   };
-
-
+  
   return (
     <KeyboardAvoidingView 
           style={[styles.container]}
@@ -244,7 +214,6 @@ export default function AddReport() {
                 </View>
             </View>
         </Modal>
-
 
       </ScrollView>
     </KeyboardAvoidingView>
