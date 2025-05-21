@@ -5,7 +5,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 
 // Importing the components
-import Home from './components/Ho/Home';
+import Home from './components/Home/Home';
 import Reports from './components/ReportScreen/Reports';
 import AddReport from './components/AddReportScreen/AddReport';
 

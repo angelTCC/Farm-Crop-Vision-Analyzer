@@ -21,6 +21,9 @@ import { getLocation } from './weatherAPI';
 import { crops, fertilizers, soils } from './modalOptions';
 import CameraModal from './CameraModal';
 
+import * as MediaLibrary from 'expo-media-library';
+
+
 
 
 export default function AddReport() {
@@ -53,7 +56,6 @@ export default function AddReport() {
   const [modalTitle, setModalTitle] = useState('');
   const YOUR_API_KEY = '6c0f59ca02b01f3e25302ad35a5f305c';
   const [callback, setSelectCallback] = useState(null);
-  const [showCamera, setShowCamera] = useState(false)
   const [savedPhotoUri, setSavedPhotoUri] = useState(null);
 
   {/* CHEAK OUT DATABASE --------------------------------- */}
@@ -73,6 +75,7 @@ export default function AddReport() {
       photoUri: savedPhotoUri, 
       observation:state.observation,
     });
+    savePhotoGalery(savedPhotoUri);
     Alert.alert('Succes', 'data stored');
     dispatch({type: 'RESET_FORM'});
     setSavedPhotoUri(null);
@@ -80,6 +83,19 @@ export default function AddReport() {
       Alert.alert('Error', 'insert data wrong')
     }
   };
+
+  const savePhotoGalery = async (uri) => {
+    try {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      await MediaLibrary.saveToLibraryAsync(uri);
+      Alert.alert('Foto guardada en la galería');
+    } catch (err) {
+      Alert.alert(JSON.stringify(uri)); {/** nul por eso no lo guarda */}
+      Alert.alert('Error al guardar imagen:', err.message);
+    }
+  };
+
+    
 
   {/* SHOW OPTIONS ---------------------------------------- */}
   const toggleModal = (data, title, setStateCallback) => {
@@ -199,7 +215,7 @@ export default function AddReport() {
         </View>
 
         {/* Take Photo */}
-        <CameraModal showCamera={showCamera} setShowCamera={setShowCamera} setSaveUri={(uri)=>setSavedPhotoUri(uri)} reset={savedPhotoUri === null}/>
+        <CameraModal setSaveUri={(uri)=>setSavedPhotoUri(uri)} reset={savedPhotoUri === null}/>
 
         {/* Observations */}
         <View>
