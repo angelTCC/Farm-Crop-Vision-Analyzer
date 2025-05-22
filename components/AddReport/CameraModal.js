@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Modal, TouchableOpacity, Text, View, Alert, Image, Pressable} from 'react-native';
+import { Modal, TouchableOpacity, Text, View, Image, Pressable} from 'react-native';
 
 // IMPORT STYLES
 import { AddReportStyles as styles, stylesCamera } from './StyleAddReport'; 
@@ -10,13 +10,13 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 // IMPORT ICONS
 import Entypo from '@expo/vector-icons/Entypo';
 
-
-{/**
-  COMPONENT CAMERA: manage all process in camera like open the camera, take photo, show it, save it. The 
-  input are:
-  - setSaveUri: state of photo's uri
-  - reset: 
+  {/**
+    COMPONENT CAMERA: manage all process in camera like open the camera, take photo, show it, save it. The 
+    input are:
+    - setSaveUri: function to save the uri of the photo taken
+    - reset:  boolean to reset the photo taken
   */}
+
 export default function CameraModal ({ setSaveUri, reset}) {
   const [showCamera, setShowCamera] = useState(false)
   const [facing, setFacing] = useState('back');
@@ -24,47 +24,46 @@ export default function CameraModal ({ setSaveUri, reset}) {
   const cameraRef = useRef(null);
   const [photoUri, setPhotoUri] = useState(null);
     
+  {/*** FUNCTION TO TOGGLE CAMERA FACING --------------------- */}
   function toggleCameraFacing() {
         setFacing(current => (current === 'back' ? 'front' : 'back'));
     }
+
+  {/*** FUNCTION TO TAKE PHOTO --------------------- */}
   const takePicture = async () => {
     if (cameraRef.current) {
       const photo = await cameraRef.current.takePictureAsync({ base64: true });
       setPhotoUri(photo.uri);
       setShowCamera(false);
+      setSaveUri(photo.uri);
     };
   };
-
-  const selectPhoto = () => {
-    setSaveUri(photoUri);
-    setShowCamera(false);
-  }
 
   useEffect(() => {
     if (reset) {
       setPhotoUri(null);
-      setSaveUri(null);
+      setSaveUri('');
     } 
   }, [reset]);
   
+  {/*** REQUEST PERMISSION TO USE CAMERA --------------------- */}
   if (!permission) {
-  // Camera permissions are still loading.
   return <View />;
       }
   if (!permission.granted) {
-  // Camera permissions are not granted yet.
-  return (
-    <View style={styles.container}>
-      <Text style={styles.message}>We need your permission to show the camera</Text>
-      <Button onPress={requestPermission} title="grant permission" />
-    </View>
-  );
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>We need your permission to show the camera</Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
   }
 
   return (
       <View>
         <View>
           <Text>Image</Text>
+          {/* SHOW PHOTO ----------------------------------- */}
           {photoUri ? (
               <View style={{alignItems:'center'}}>
                 <Image

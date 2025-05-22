@@ -1,4 +1,11 @@
 import * as Location from 'expo-location';
+import { Alert } from 'react-native';
+
+{/**
+    function to get the location of the user and the weather data,
+    the parameters are:
+    - API_KEY: the key to access the weather API
+*/}
 
 export const getLocation = async (API_KEY) => {
   try {
@@ -26,7 +33,7 @@ export const getLocation = async (API_KEY) => {
       country: data.sys.country
     };
   } catch (err) {
-    console.error('Error fetching location weather data:', err);
+    Alert.alert(err.message);
     return null;
   }
 };

@@ -16,19 +16,16 @@ import {
 import { AddReportStyles as styles, optionStyle } from './StyleAddReport'; 
 
 // IMPORT COMPONENTS 
-import { insertReport, initDB } from './SQLiteConnection';
-import { getLocation } from './weatherAPI';
+import { insertReport, initDB } from '../SQLiteConnection/SQLiteConnection';
+import { getLocation } from '../api/weatherAPI';
 import { crops, fertilizers, soils } from './modalOptions';
 import CameraModal from './CameraModal';
 
 import * as MediaLibrary from 'expo-media-library';
 
-
-
-
 export default function AddReport() {
 
-  {/* REDUCE HOOK TO STORE PARAMETERS IN THE FORM */}
+  {/* REDUCE HOOK TO STORE PARAMETERS IN THE FORM ----------------------*/}
   const initialState = { 
     farmName: '', 
     observation: '', 
@@ -50,35 +47,36 @@ export default function AddReport() {
   };
   const [state, dispatch] = useReducer(formReducer, initialState);
 
-  {/* STATES TO CONTROL DYNAMIC */}
+  {/* STATES TO CONTROL DYNAMIC -----------------------------*/}
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [dataModal, setDataModal] = useState([]);
   const [modalTitle, setModalTitle] = useState('');
   const YOUR_API_KEY = '6c0f59ca02b01f3e25302ad35a5f305c';
   const [callback, setSelectCallback] = useState(null);
-  const [savedPhotoUri, setSavedPhotoUri] = useState(null);
+  const [savedPhotoUri, setSavedPhotoUri] = useState('');
+  const [loading, setLoading] = useState('');
 
   {/* CHEAK OUT DATABASE --------------------------------- */}
   useEffect(() => {
     initDB();
   }, []);
 
-  {/* FUNCTION TO STORE DATA IN DATABASE ------------------ */}
+  {/* FUNCTION TO STORE DATA IN DATABASE AND PHOTO IN GALERY  ------------------ */}
   const sendData = async () => {
     try{
       const success = await insertReport({
-      farmName: state.farmName, 
-      location: state.location, 
-      crop: state.crop, 
-      fertilizer: state.fertilizer, 
-      soil: state.soil, 
-      photoUri: savedPhotoUri, 
-      observation:state.observation,
-    });
-    savePhotoGalery(savedPhotoUri);
-    Alert.alert('Succes', 'data stored');
-    dispatch({type: 'RESET_FORM'});
-    setSavedPhotoUri(null);
+        farmName: state.farmName, 
+        location: state.location, 
+        crop: state.crop, 
+        fertilizer: state.fertilizer, 
+        soil: state.soil, 
+        photoUri: savedPhotoUri, 
+        observation:state.observation,
+      });
+      await savePhotoGalery(savedPhotoUri);
+      Alert.alert('Succes', 'data stored');
+      dispatch({type: 'RESET_FORM'});
+      setSavedPhotoUri('');
     } catch (err) {
       Alert.alert('Error', 'insert data wrong')
     }
@@ -90,14 +88,10 @@ export default function AddReport() {
       await MediaLibrary.saveToLibraryAsync(uri);
       Alert.alert('Foto guardada en la galería');
     } catch (err) {
-      Alert.alert(JSON.stringify(uri)); {/** nul por eso no lo guarda */}
-      Alert.alert('Error al guardar imagen:', err.message);
     }
   };
 
-    
-
-  {/* SHOW OPTIONS ---------------------------------------- */}
+  {/* FUNCTION TO SHOW MODAL OPTIONS --------------------- */}  
   const toggleModal = (data, title, setStateCallback) => {
     setDataModal(data);
     setModalTitle(title);
@@ -121,15 +115,18 @@ export default function AddReport() {
 
   {/* GET ENVIROMENT CONDITIONS WITH API ------------------- */}
   const fetchAndDispatchLocation = async () => {
-    dispatch({type:'SET_FIELD', field:'location', value:'Loading...'});
+    setLoading('Loading...');
     const weatherData = await getLocation(YOUR_API_KEY);
     if (weatherData) {
       dispatch({
         type: 'SET_FIELD',
         field: 'location',
         value: weatherData,
-      });
-    }
+      })
+    } else {
+        Alert.alert('Error', 'No location data available');
+      };
+    setLoading('');
   };
 
   return (
@@ -140,7 +137,7 @@ export default function AddReport() {
       >
       <ScrollView keyboardDismissMode='on-drag'>
 
-        {/* Farm name */}
+        {/* FARM NAME ---------------------------------*/}
         <View style={{paddingTop:20}}>
           <Text>Farm name</Text>
           <TextInput 
@@ -150,7 +147,7 @@ export default function AddReport() {
           />
         </View>
         
-        {/*GPS conditions */}
+        {/* LOCATION CONDITIONS ---------------------------- */}
         <View>
           <Text>Wetter and location</Text>
           <View style={{flexDirection:'row'}}>
@@ -175,11 +172,11 @@ export default function AddReport() {
             </View>
           ): (
             <>
-            <Text>{state.location}</Text></>
+            <Text>{loading}</Text></>
           )}
         </View>
 
-        {/* Crop Fertilizer Soils */}
+        {/* CROP, FERTILIZER, SOIL ------------------------- */}
         <View>
           <Text>Conditions</Text>
           {/** crop */}
@@ -214,10 +211,10 @@ export default function AddReport() {
           </View>
         </View>
 
-        {/* Take Photo */}
-        <CameraModal setSaveUri={(uri)=>setSavedPhotoUri(uri)} reset={savedPhotoUri === null}/>
+        {/*  TAKE PHOTO ------------------------------------------- */}
+        <CameraModal setSaveUri={(uri)=>setSavedPhotoUri(uri)} reset={savedPhotoUri===null}/>
 
-        {/* Observations */}
+        {/* OBSERVATION ------------------------------------------- */}
         <View>
           <Text>Observations</Text>
           <TextInput 
@@ -227,10 +224,12 @@ export default function AddReport() {
                   numberOfLines={4} maxLength={50} multiline={false}/>
         </View>
 
+        {/* SUBMIT BUTTON ---------------------------------------- */}
         <Pressable style={({pressed})=>[styles.button, pressed && {backgroundColor:'#2150fd'}]} onPress={sendData} >
           <Text>Submit</Text>
         </Pressable>
-
+        
+        {/* MODAL FOR SELECT OPTIONS ---------------------------- */}
         <Modal visible={isModalVisible} animationType="slide" transparent={true}>
             <View style={optionStyle.viewList}>
                 <View style={optionStyle.flatList}>

@@ -4,6 +4,7 @@ import { Alert } from 'react-native';
 
 const dbName = 'reportsDatabase';
 
+// FUNTION TO OPEN DATABASE
 export const initDB = async () => {
   try {
     const db = await SQLite.openDatabaseAsync(dbName);
@@ -25,6 +26,7 @@ export const initDB = async () => {
   }
 };
 
+// FUNCTION INSERT DATA IN DATABASE
 export const insertReport = async ({
     farmName,
     location,
@@ -47,3 +49,14 @@ export const insertReport = async ({
         return false;
   }
 };
+
+export const deleteAllData = async () => {
+        try {
+            const db = await SQLite.openDatabaseAsync('reportsDatabase');
+            await db.runAsync('DELETE FROM reports');
+            const results = await db.getAllAsync('SELECT * FROM reports');
+            Alert.alert('Delete data', 'Todos los datos eliminados de la tabla reports.');
+        } catch (err) {
+            console.error('Error al eliminar datos:', err);
+        }
+    };

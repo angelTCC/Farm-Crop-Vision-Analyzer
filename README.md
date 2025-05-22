@@ -27,7 +27,6 @@
 * 🗄️ **SQLite (via Expo SQLite)** – Local data storage
 * 📷 **Expo Camera & MediaLibrary** – Capture and access images
 * 🌐 **OpenWeatherMap API** – Fetch live weather and location info
-* ⚙️ **State Management with Reducers** – Efficient form and data control
 
 ## 🧪 Installation
 

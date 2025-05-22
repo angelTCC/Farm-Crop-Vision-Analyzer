@@ -1,5 +1,6 @@
 
 import { StyleSheet } from 'react-native';
+
 export const AddReportStyles = StyleSheet.create({
     input: {
       borderWidth: 1,

@@ -1,5 +1,4 @@
-import React from 'react';
-
+// This file contains the options for the modal in the AddReportScreen component.
 export  const crops = [
     {name: 'Corn', id:'1d'}, 
     {name:'Soybean', id:'2'}, 
