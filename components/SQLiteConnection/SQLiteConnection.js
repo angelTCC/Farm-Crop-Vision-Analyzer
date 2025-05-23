@@ -20,7 +20,7 @@ export const initDB = async () => {
         observation TEXT
       );
     `);
-    Alert.alert('Succes', 'DB connection')
+    Alert.alert('Connected','successful connection to the database');
   } catch (err) {
     Alert.alert('Error', 'Failed to initialize database.');
   }
@@ -50,12 +50,13 @@ export const insertReport = async ({
   }
 };
 
+// FUNCTION TO GET ALL DATA FROM DATABASE
 export const deleteAllData = async () => {
         try {
             const db = await SQLite.openDatabaseAsync('reportsDatabase');
             await db.runAsync('DELETE FROM reports');
             const results = await db.getAllAsync('SELECT * FROM reports');
-            Alert.alert('Delete data', 'Todos los datos eliminados de la tabla reports.');
+            Alert.alert('Delete', 'All data deleted from the report table.');
         } catch (err) {
             console.error('Error al eliminar datos:', err);
         }

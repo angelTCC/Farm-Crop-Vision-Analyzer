@@ -74,9 +74,9 @@ export default function AddReport() {
         observation:state.observation,
       });
       await savePhotoGalery(savedPhotoUri);
-      Alert.alert('Succes', 'data stored');
+      Alert.alert('Succes', 'Data saved on the device');
       dispatch({type: 'RESET_FORM'});
-      setSavedPhotoUri('');
+      setSavedPhotoUri(null);
     } catch (err) {
       Alert.alert('Error', 'insert data wrong')
     }
@@ -86,7 +86,6 @@ export default function AddReport() {
     try {
       const { status } = await MediaLibrary.requestPermissionsAsync();
       await MediaLibrary.saveToLibraryAsync(uri);
-      Alert.alert('Foto guardada en la galería');
     } catch (err) {
     }
   };
@@ -211,7 +210,7 @@ export default function AddReport() {
           </View>
         </View>
 
-        {/*  TAKE PHOTO ------------------------------------------- */}
+        {/* TAKE PHOTO ------------------------------------------- */}
         <CameraModal setSaveUri={(uri)=>setSavedPhotoUri(uri)} reset={savedPhotoUri===null}/>
 
         {/* OBSERVATION ------------------------------------------- */}
